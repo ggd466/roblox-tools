@@ -1,56 +1,32 @@
 import json
-import logging
+import requests
 
-# Configure logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+class RobloxDataHandler:
+    BASE_URL = 'https://api.roblox.com/'
 
-class RobloxError(Exception):
-    pass
+    def __init__(self, username):
+        self.username = username
+        self.user_id = self.get_user_id()
 
-class Handler:
-    def __init__(self, data):
-        self.data = data
+    def get_user_id(self):
+        response = requests.get(f'{self.BASE_URL}users/get-by-username?username={self.username}')
+        if response.status_code == 200:
+            return response.json().get('Id')
+        raise ValueError('Username not found')
 
-    def process_data(self):
-        try:
-            self.validate_data()
-            result = self.perform_action()
-            return result
-        except RobloxError as e:
-            logging.error(f'RobloxError encountered: {str(e)}')
-            return {'error': str(e)}
-        except Exception as e:
-            logging.error(f'Unexpected error: {str(e)}')
-            return {'error': 'An unexpected error occurred.'}
+    def get_user_stats(self):
+        stats_url = f'{self.BASE_URL}users/{self.user_id}/stats'
+        response = requests.get(stats_url)
+        if response.status_code == 200:
+            return response.json()
+        raise ValueError('Could not retrieve user stats')
 
-    def validate_data(self):
-        if not isinstance(self.data, dict):
-            raise RobloxError('Data must be a dictionary.')
-        if 'action' not in self.data:
-            raise RobloxError('The key `action` is missing.')
+    def save_stats_to_file(self, filename):
+        stats = self.get_user_stats()
+        with open(filename, 'w') as file:
+            json.dump(stats, file, indent=4)
+        print(f'Stats saved to {filename}')  
 
-    def perform_action(self):
-        action = self.data['action']
-        if action == 'create':
-            return self.create_entity()
-        elif action == 'delete':
-            return self.delete_entity()
-        else:
-            raise RobloxError('Invalid action specified.')
-
-    def create_entity(self):
-        return json.dumps({'status': 'Entity created successfully.'})
-
-    def delete_entity(self):
-        return json.dumps({'status': 'Entity deleted successfully.'})
-
-# Example usage
-if __name__ == '__main__':
-    handler = Handler({'action': 'create'})
-    print(handler.process_data())
-    
-    handler = Handler({'action': 'invalid'})
-    print(handler.process_data())
-    
-    handler = Handler('invalid_data')
-    print(handler.process_data())
+# Example usage, uncomment to run:
+# handler = RobloxDataHandler('exampleUsername')
+# handler.save_stats_to_file('user_stats.json')
