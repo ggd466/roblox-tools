@@ -1,28 +1,29 @@
 import re
 
-def validate_input(input_data):
-    if not isinstance(input_data, str):
-        raise ValueError('Input must be a string')
-    if not input_data:
-        raise ValueError('Input cannot be empty')
-    if len(input_data) > 100:
-        raise ValueError('Input cannot exceed 100 characters')
-    if not re.match('^[a-zA-Z0-9_]*$', input_data):
-        raise ValueError('Input can only contain alphanumeric characters and underscores')
+class InputValidationError(Exception):
+    pass
+
+def validate_input(value):
+    if not isinstance(value, str):
+        raise InputValidationError("Input must be a string")
+    if len(value) < 3:
+        raise InputValidationError("Input must be at least 3 characters long")
+    if not re.match("^[A-Za-z0-9_]*$, value):
+        raise InputValidationError("Input must contain only alphanumeric characters or underscores")
+
     return True
 
-if __name__ == '__main__':
-    test_inputs = [
-        'valid_input',
-        'anotherValid123',
-        '',
-        123,
-        'invalid!@#$',
-        'this_input_is_way_too_long_to_pass_validation_and_should_fail'
-    ]
-    for inp in test_inputs:
+def main_processing_loop(inputs):
+    results = []
+    for item in inputs:
         try:
-            validate_input(inp)
-            print(f'"{inp}" is valid.')
-        except ValueError as e:
-            print(f'"{inp}" is invalid: {e}')
+            validate_input(item)
+            results.append(f"Valid: {item}")
+        except InputValidationError as e:
+            results.append(f"Invalid: {item}, Reason: {str(e)}")
+    return results
+
+# Example usage
+if __name__ == '__main__':
+    sample_inputs = ["valid_input", "9", "!invalid!", 123, "ab"]
+    print(main_processing_loop(sample_inputs))
