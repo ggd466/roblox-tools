@@ -1,29 +1,23 @@
-import json
+import time
+import random
+import requests
 
-class RobloxDataHandler:
-    def __init__(self, data):
-        self.data = data
+def retry_request(url, method='GET', retries=3, delay=2, backoff=2, **kwargs):
+    for attempt in range(retries):
+        try:
+            response = requests.request(method, url, **kwargs)
+            response.raise_for_status()
+            return response
+        except requests.exceptions.RequestException as e:
+            if attempt < retries - 1:
+                sleep_time = delay * (backoff ** attempt)
+                print(f'Attempt {attempt + 1} failed: {e}. Retrying in {sleep_time} seconds...')
+                time.sleep(sleep_time)
+            else:
+                print(f'All attempts failed. Last exception: {e}')
+                raise
+    return None
 
-    def filter_data(self, filters):
-        return [item for item in self.data if all(item.get(k) == v for k, v in filters.items())]
-
-    def to_json(self):
-        return json.dumps(self.data, indent=4)
-
-    def from_json(self, json_str):
-        self.data = json.loads(json_str)
-
-    def get_unique_values(self, key):
-        return set(item.get(key) for item in self.data if key in item)
-
-# Example usage
-if __name__ == '__main__':
-    sample_data = [
-        {'player_id': 1, 'name': 'PlayerOne', 'score': 150},
-        {'player_id': 2, 'name': 'PlayerTwo', 'score': 200},
-        {'player_id': 1, 'name': 'PlayerOne', 'score': 150}
-    ]
-    handler = RobloxDataHandler(sample_data)
-    print(handler.to_json())
-    unique_players = handler.get_unique_values('player_id')
-    print(unique_players)
+# Example usage - Uncomment to test
+# response = retry_request('https://example.com/api/data')
+# print(response.json())
