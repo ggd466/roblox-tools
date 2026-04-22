@@ -1,35 +1,39 @@
 class RobloxError(Exception):
     """Base class for all Roblox exceptions."""
+    pass
+
+class InvalidInputError(RobloxError):
+    """Raised when input validation fails."""
     def __init__(self, message):
         self.message = message
         super().__init__(self.message)
 
-class AssetNotFoundError(RobloxError):
-    """Exception raised when an asset is not found."""
-    def __init__(self, asset_id):
-        super().__init__(f'Asset with ID {asset_id} not found.')
-        self.asset_id = asset_id
-
-class UserNotFoundError(RobloxError):
-    """Exception raised when a user is not found."""
-    def __init__(self, username):
-        super().__init__(f'User with username {username} not found.')
-        self.username = username
+class ResourceNotFoundError(RobloxError):
+    """Raised when a resource is not found."""
+    def __init__(self, resource):
+        self.resource = resource
+        self.message = f'{resource} not found.'
+        super().__init__(self.message)
 
 class PermissionDeniedError(RobloxError):
-    """Exception raised for permission errors."""
-    def __init__(self, action):
-        super().__init__(f'Permission denied for action: {action}.')
-        self.action = action
+    """Raised when user lacks permissions."""
+    def __init__(self, user):
+        self.user = user
+        self.message = f'Permission denied for user: {user}'
+        super().__init__(self.message)
 
-class InvalidInputError(RobloxError):
-    """Exception raised for invalid input errors."""
-    def __init__(self, input_value):
-        super().__init__(f'Invalid input: {input_value}.')
-        self.input_value = input_value
+def handle_error(e):
+    if isinstance(e, InvalidInputError):
+        print(f'Invalid input: {e.message}')
+    elif isinstance(e, ResourceNotFoundError):
+        print(f'Error: {e.message}')
+    elif isinstance(e, PermissionDeniedError):
+        print(f'Access Error: {e.message}')
+    else:
+        print('An unexpected error occurred: ', str(e))
 
-class OperationFailedError(RobloxError):
-    """Exception raised when an operation fails."""
-    def __init__(self, operation):
-        super().__init__(f'Operation failed: {operation}.')
-        self.operation = operation
+# Example usage
+try:
+    raise InvalidInputError('Negative value not allowed')
+except RobloxError as ex:
+    handle_error(ex)
