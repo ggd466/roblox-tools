@@ -1,22 +1,29 @@
-import time
-import requests
-from requests.exceptions import RequestException
+import re
 
-def retry_request(url, max_retries=5, delay=2):
-    attempt = 0
-    while attempt < max_retries:
-        try:
-            response = requests.get(url)
-            response.raise_for_status()  # Raise an error for bad HTTP response
-            return response.json()  # Assuming we want JSON response
-        except RequestException as e:
-            print(f"Attempt {attempt + 1} failed: {e}")
-            attempt += 1
-            time.sleep(delay)
-            if attempt == max_retries:
-                raise RuntimeError(f"Max retries exceeded for URL: {url}")
-    return None
+def validate_input(user_input):
+    if not isinstance(user_input, str):
+        raise ValueError("Input must be a string.")
+    if len(user_input) < 1:
+        raise ValueError("Input cannot be empty.")
+    if not re.match("^[A-Za-z0-9_]*$, user_input):
+        raise ValueError("Input can only contain alphanumeric characters and underscores.")
+    return True
 
-# Example usage:
-# data = retry_request('https://api.example.com/data')
-# print(data)
+def process_data(data):
+    try:
+        validate_input(data)
+        print(f"Processing {data}...")
+        # Simulate processing
+        return f"Processed: {data}"
+    except ValueError as e:
+        print(f"Input validation error: {e}")
+        return None
+
+if __name__ == '__main__':
+    sample_input = "valid_input_123"
+    result = process_data(sample_input)
+    print(result)
+
+    invalid_input = "!invalid@input#"
+    result = process_data(invalid_input)
+    print(result)
