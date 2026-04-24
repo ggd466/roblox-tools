@@ -1,39 +1,42 @@
 class RobloxError(Exception):
-    """Base class for all Roblox exceptions."""
+    """Base class for Roblox exceptions."""
     pass
 
-class InvalidInputError(RobloxError):
-    """Raised when input validation fails."""
-    def __init__(self, message):
-        self.message = message
-        super().__init__(self.message)
+class NotFoundError(RobloxError):
+    """Exception raised when a resource is not found."""
 
-class ResourceNotFoundError(RobloxError):
-    """Raised when a resource is not found."""
-    def __init__(self, resource):
+    def __init__(self, resource: str, *args: object) -> None:
+        """Initialize NotFoundError with resource details.
+
+        Args:
+            resource (str): The name of the missing resource.
+            *args (object): Additional arguments for the exception.
+        """
+        super().__init__(f"Resource '{resource}' not found.", *args)
         self.resource = resource
-        self.message = f'{resource} not found.'
-        super().__init__(self.message)
 
 class PermissionDeniedError(RobloxError):
-    """Raised when user lacks permissions."""
-    def __init__(self, user):
-        self.user = user
-        self.message = f'Permission denied for user: {user}'
-        super().__init__(self.message)
+    """Exception raised for permission-related errors."""
 
-def handle_error(e):
-    if isinstance(e, InvalidInputError):
-        print(f'Invalid input: {e.message}')
-    elif isinstance(e, ResourceNotFoundError):
-        print(f'Error: {e.message}')
-    elif isinstance(e, PermissionDeniedError):
-        print(f'Access Error: {e.message}')
-    else:
-        print('An unexpected error occurred: ', str(e))
+    def __init__(self, action: str, *args: object) -> None:
+        """Initialize PermissionDeniedError with action details.
 
-# Example usage
-try:
-    raise InvalidInputError('Negative value not allowed')
-except RobloxError as ex:
-    handle_error(ex)
+        Args:
+            action (str): The action for which permission was denied.
+            *args (object): Additional arguments for the exception.
+        """
+        super().__init__(f"Permission denied for action: '{action}'.", *args)
+        self.action = action
+
+class RateLimitExceededError(RobloxError):
+    """Exception raised when rate limits are exceeded."""
+
+    def __init__(self, limit: int, *args: object) -> None:
+        """Initialize RateLimitExceededError with limit details.
+
+        Args:
+            limit (int): The rate limit that was exceeded.
+            *args (object): Additional arguments for the exception.
+        """
+        super().__init__(f"Rate limit of {limit} exceeded.", *args)
+        self.limit = limit
