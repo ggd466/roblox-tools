@@ -1,42 +1,52 @@
-import json
+from typing import Dict, Any
 import os
 
-DEFAULT_CONFIG = {
-    'username': 'guest',
-    'game_id': 0,
-    'sensitivity': 0.5,
-    'auto_join': True,
-    'language': 'en'
-}
+class Config:
+    """
+    Configuration class to handle application settings.
+    """
+    def __init__(self, config_file: str) -> None:
+        """
+        Initialize the Config with a configuration file.
+        
+        :param config_file: Path to the configuration file.
+        """
+        self.settings: Dict[str, Any] = self.load_config(config_file)
 
-class ConfigLoader:
-    def __init__(self, filename='config.json'):
-        self.filename = filename
-        self.config = self.load_config()
+    def load_config(self, config_file: str) -> Dict[str, Any]:
+        """
+        Load configuration settings from a file.
+        
+        :param config_file: Path to the configuration file.
+        :return: Dictionary of configuration settings.
+        """
+        if not os.path.isfile(config_file):
+            raise FileNotFoundError(f"Config file not found: {config_file}")
 
-    def load_config(self):
-        if os.path.exists(self.filename):
-            with open(self.filename, 'r') as file:
-                return self._merge_defaults(json.load(file))
-        return DEFAULT_CONFIG
+        with open(config_file, 'r') as file:
+            content = file.read()
+        return self.parse_content(content)
 
-    def _merge_defaults(self, user_config):
-        return {**DEFAULT_CONFIG, **user_config}
+    def parse_content(self, content: str) -> Dict[str, Any]:
+        """
+        Parse the configuration content into a dictionary.
+        
+        :param content: Raw configuration file content.
+        :return: Parsed settings as a dictionary.
+        """
+        settings: Dict[str, Any] = {}
+        for line in content.splitlines():
+            if line and not line.startswith('#'):
+                key, value = line.split('=', 1)
+                settings[key.strip()] = value.strip()
+        return settings
 
-    def save_config(self):
-        with open(self.filename, 'w') as file:
-            json.dump(self.config, file, indent=4)
-
-    def get(self, key, default=None):
-        return self.config.get(key, default)
-
-    def set(self, key, value):
-        self.config[key] = value
-        self.save_config()
-
-# Example of usage
-if __name__ == '__main__':
-    loader = ConfigLoader()
-    print(loader.get('username'))
-    loader.set('username', 'roblox_user')
-    print(loader.get('username'))
+    def get(self, key: str, default: Any = None) -> Any:
+        """
+        Retrieve a configuration value by its key.
+        
+        :param key: The key of the setting to retrieve.
+        :param default: The default value to return if key not found.
+        :return: The configuration value or default if not found.
+        """  
+        return self.settings.get(key, default)
