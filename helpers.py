@@ -2,22 +2,24 @@ import time
 import random
 import requests
 
-def retry_request(url, method='GET', retries=3, delay=2, backoff=2, **kwargs):
+
+def retry_request(url, retries=3, delay=1, backoff=2):
     for attempt in range(retries):
         try:
-            response = requests.request(method, url, **kwargs)
-            response.raise_for_status()
-            return response
-        except requests.exceptions.RequestException as e:
+            response = requests.get(url)
+            response.raise_for_status()  # Raise HTTPError for bad responses
+            return response.json()
+        except requests.RequestException as e:
+            print(f'Attempt {attempt + 1} failed: {e}')
             if attempt < retries - 1:
                 sleep_time = delay * (backoff ** attempt)
-                print(f'Attempt {attempt + 1} failed: {e}. Retrying in {sleep_time} seconds...')
+                print(f'Retrying in {sleep_time} seconds...')
                 time.sleep(sleep_time)
             else:
-                print(f'All attempts failed. Last exception: {e}')
-                raise
+                print('All attempts failed. Returning None.')  
     return None
 
-# Example usage - Uncomment to test
-# response = retry_request('https://example.com/api/data')
-# print(response.json())
+
+# Example usage:
+# result = retry_request('https://example.com/api/data')
+# print(result)
