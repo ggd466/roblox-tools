@@ -1,28 +1,34 @@
 import logging
-from logging.handlers import RotatingFileHandler
 
 class CustomLogger:
-    def __init__(self, name, log_file='app.log', max_bytes=5*1024*1024, backup_count=3):
+    def __init__(self, name):
         self.logger = logging.getLogger(name)
         self.logger.setLevel(logging.DEBUG)
-        handler = RotatingFileHandler(log_file, maxBytes=max_bytes, backupCount=backup_count)
+        ch = logging.StreamHandler()
+        ch.setLevel(logging.DEBUG)
         formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-        handler.setFormatter(formatter)
-        self.logger.addHandler(handler)
+        ch.setFormatter(formatter)
+        self.logger.addHandler(ch)
 
-    def info(self, msg):
-        self.logger.info(msg)
+    def debug(self, message):
+        self._log_with_error_handling(self.logger.debug, message)
 
-    def debug(self, msg):
-        self.logger.debug(msg)
+    def info(self, message):
+        self._log_with_error_handling(self.logger.info, message)
 
-    def warning(self, msg):
-        self.logger.warning(msg)
+    def warning(self, message):
+        self._log_with_error_handling(self.logger.warning, message)
 
-    def error(self, msg):
-        self.logger.error(msg)
+    def error(self, message):
+        self._log_with_error_handling(self.logger.error, message)
 
-    def critical(self, msg):
-        self.logger.critical(msg)
+    def critical(self, message):
+        self._log_with_error_handling(self.logger.critical, message)
 
-logger = CustomLogger(__name__).logger
+    def _log_with_error_handling(self, log_method, message):
+        if not isinstance(message, str):
+            self.logger.error('Attempted to log a non-string message.'); return
+        try:
+            log_method(message)
+        except Exception as e:
+            self.logger.error(f'Logging failed: {e}')
