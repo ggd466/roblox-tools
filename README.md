@@ -1,56 +1,45 @@
 # roblox-tools
 
-roblox-tools is a Python library designed to simplify common tasks and streamline development for Roblox game developers. With its user-friendly API, developers can easily manage assets, automate workflows, and enhance their game development experience on the Roblox platform.
+Roblox-tools is a Python library designed to simplify the interaction with Roblox APIs and facilitate the automation of tasks related to Roblox game development. With this toolset, developers can efficiently manage game assets, user data, and in-game transactions.
 
 ## Features
 
-- **Asset Management**: Effortlessly upload, update, and delete assets directly from your scripts, making asset handling a breeze.
-- **Game Analytics**: Access in-depth game analytics and metrics, allowing developers to track player engagement and improve gameplay.
-- **Scripting Utilities**: Utilize a set of helpful utilities to optimize your Lua scripts for enhanced performance within Roblox Studio.
-- **API Integration**: Seamlessly connect to official Roblox APIs to access real-time data and insights for your games.
+- **Asset Management**: Easily upload, update, and manage game assets like images, audio, and models using the Roblox Asset Manager API.
+- **Player Data Retrieval**: Fetch player statistics and profiles programmatically for smoother game analytics or tailored user experiences.
+- **Game Configuration**: Access and modify game settings, including in-game currency and leaderboard manipulation, to enhance the gaming experience.
+- **In-game Transactions**: Automate the purchase and sale of items within your game, streamlining the process for your players.
 
 ## Installation
 
-To get started, ensure you have Python 3.6 or higher installed. Then, install the roblox-tools library using pip:
+To install roblox-tools, ensure you have Python 3.6 or higher, then run the following command:
 
 ```bash
 pip install roblox-tools
 ```
 
-You can also clone the repository directly and install any dependencies listed in the `requirements.txt`:
-
-```bash
-git clone https://github.com/Developer/roblox-tools.git
-cd roblox-tools
-pip install -r requirements.txt
-```
-
 ## Basic Usage Example
 
-Here’s a quick example of how to get started with roblox-tools:
+To get started with roblox-tools, you can quickly retrieve player information and manage game assets. Here's an example of how to fetch player data:
 
 ```python
-from roblox_tools import Roblox
+from roblox_tools import RobloxAPI
 
-# Initialize the Roblox client with your credentials
-client = Roblox(username='your_username', password='your_password')
+# Initialize the API with your Roblox credentials
+api = RobloxAPI(username='your_username', password='your_password')
 
-# Upload an asset
-asset_id = client.upload_asset('path/to/your/asset.png', 'AssetName')
+# Fetch player stats
+player_stats = api.get_player_stats(user_id='12345678')
+print(player_stats)
 
-print(f'Asset uploaded successfully: {asset_id}')
-
-# Fetch game analytics
-analytics = client.get_game_analytics(game_id='your_game_id')
-print(f'Player Count: {analytics["player_count"]}, Revenue: {analytics["revenue"]}')
+# Upload a new asset
+asset = api.upload_asset(file_path='path/to/your/asset.png', asset_type='Image')
+print(f'Uploaded Asset ID: {asset.id}')
 ```
+
+Make sure to replace `'your_username'`, `'your_password'`, and file paths with your actual data.
 
 ## License
 
-![MIT License](https://img.shields.io/badge/license-MIT-brightgreen)
+![License](https://img.shields.io/badge/license-MIT-brightgreen) 
 
-This project is licensed under the MIT License. See the LICENSE file for details. 
-
----
-
-Dive into roblox-tools and elevate your Roblox development process to the next level!
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
