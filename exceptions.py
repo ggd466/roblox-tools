@@ -1,42 +1,32 @@
 class RobloxError(Exception):
-    """Base class for Roblox exceptions."""
-    pass
+    """Base class for exceptions in Roblox tools."""
+
+class InvalidInputError(RobloxError):
+    """Raised when an invalid input is provided."""
+
+class ConnectionError(RobloxError):
+    """Raised for connection-related issues."""
 
 class NotFoundError(RobloxError):
-    """Exception raised when a resource is not found."""
+    """Raised when an expected resource is not found."""
 
-    def __init__(self, resource: str, *args: object) -> None:
-        """Initialize NotFoundError with resource details.
+class UnauthorizedAccessError(RobloxError):
+    """Raised when access to a resource is denied."""
 
-        Args:
-            resource (str): The name of the missing resource.
-            *args (object): Additional arguments for the exception.
-        """
-        super().__init__(f"Resource '{resource}' not found.", *args)
-        self.resource = resource
+# Example of usage in a function:
 
-class PermissionDeniedError(RobloxError):
-    """Exception raised for permission-related errors."""
-
-    def __init__(self, action: str, *args: object) -> None:
-        """Initialize PermissionDeniedError with action details.
-
-        Args:
-            action (str): The action for which permission was denied.
-            *args (object): Additional arguments for the exception.
-        """
-        super().__init__(f"Permission denied for action: '{action}'.", *args)
-        self.action = action
-
-class RateLimitExceededError(RobloxError):
-    """Exception raised when rate limits are exceeded."""
-
-    def __init__(self, limit: int, *args: object) -> None:
-        """Initialize RateLimitExceededError with limit details.
-
-        Args:
-            limit (int): The rate limit that was exceeded.
-            *args (object): Additional arguments for the exception.
-        """
-        super().__init__(f"Rate limit of {limit} exceeded.", *args)
-        self.limit = limit
+def fetch_user_data(user_id):
+    if not isinstance(user_id, int) or user_id <= 0:
+        raise InvalidInputError("User ID must be a positive integer")
+    try:
+        # Simulate fetching user data
+        user_data = get_data_from_api(user_id)  # Hypothetical function
+        if user_data is None:
+            raise NotFoundError(f"User with ID {user_id} not found")
+        return user_data
+    except ConnectionError:
+        print("Failed to connect to the server. Please try again later.")
+    except UnauthorizedAccessError:
+        print("You do not have permission to access this resource.")
+    except Exception as e:
+        print(f"An unexpected error occurred: {str(e)}")
