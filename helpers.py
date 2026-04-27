@@ -1,25 +1,30 @@
-import time
-import random
-import requests
+import json
+import os
 
 
-def retry_request(url, retries=3, delay=1, backoff=2):
-    for attempt in range(retries):
-        try:
-            response = requests.get(url)
-            response.raise_for_status()  # Raise HTTPError for bad responses
-            return response.json()
-        except requests.RequestException as e:
-            print(f'Attempt {attempt + 1} failed: {e}')
-            if attempt < retries - 1:
-                sleep_time = delay * (backoff ** attempt)
-                print(f'Retrying in {sleep_time} seconds...')
-                time.sleep(sleep_time)
-            else:
-                print('All attempts failed. Returning None.')  
-    return None
+def load_json(file_path):
+    if not os.path.isfile(file_path):
+        raise FileNotFoundError(f"{file_path} not found")
+    with open(file_path, 'r') as file:
+        return json.load(file)
 
 
-# Example usage:
-# result = retry_request('https://example.com/api/data')
-# print(result)
+def save_json(data, file_path):
+    with open(file_path, 'w') as file:
+        json.dump(data, file, indent=4)
+
+
+def list_directory_files(directory):
+    return [f for f in os.listdir(directory) if os.path.isfile(os.path.join(directory, f))]
+
+
+def pretty_print(data):
+    print(json.dumps(data, indent=4, sort_keys=True))
+
+
+def merge_dicts(dict1, dict2):
+    return {**dict1, **dict2}
+
+
+def ensure_list(item):
+    return item if isinstance(item, list) else [item]
