@@ -1,33 +1,33 @@
 import json
+import logging
 
-class RobloxDataProcessor:
-    def __init__(self, data):
-        self.data = data
+# Configure logger
+logging.basicConfig(level=logging.DEBUG)
+logger = logging.getLogger(__name__)
 
-    def filter_by_attribute(self, attribute, value):
-        return [item for item in self.data if item.get(attribute) == value]
+class ProcessingError(Exception):
+    pass
 
-    def sort_by_attribute(self, attribute, reverse=False):
-        return sorted(self.data, key=lambda x: x.get(attribute), reverse=reverse)
+def process_data(data):
+    if not isinstance(data, dict):
+        logger.error('Invalid input: expected a dictionary')
+        raise ProcessingError('Invalid input format')
+    
+    try:
+        # Simulate data processing
+        result = {key: value * 2 for key, value in data.items() if isinstance(value, (int, float))}
+    except Exception as e:
+        logger.exception('Error processing data')
+        raise ProcessingError('Data processing failed') from e
+    
+    if not result:
+        logger.warning('No numeric values found to process')
+    return result
 
-    def convert_to_json(self):
-        return json.dumps(self.data)
-
-    def from_json(self, json_str):
-        try:
-            self.data = json.loads(json_str)
-        except json.JSONDecodeError:
-            raise ValueError('Invalid JSON data')
-
-# Example usage:
 if __name__ == '__main__':
-    sample_data = [
-        {'name': 'Player1', 'score': 150},
-        {'name': 'Player2', 'score': 200},
-        {'name': 'Player3', 'score': 100}
-    ]
-    processor = RobloxDataProcessor(sample_data)
-    filtered_data = processor.filter_by_attribute('score', 200)
-    sorted_data = processor.sort_by_attribute('score', reverse=True)
-    json_data = processor.convert_to_json()
-    print(filtered_data, sorted_data, json_data)
+    data = {'a': 1, 'b': 2, 'c': 'three'}
+    try:
+        processed = process_data(data)
+        print(json.dumps(processed, indent=2))
+    except ProcessingError as e:
+        logger.error(f'Processing failed: {e}')
