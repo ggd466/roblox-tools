@@ -1,30 +1,35 @@
 import json
-import os
+import random
+import string
+
+def generate_random_string(length=10):
+    return ''.join(random.choices(string.ascii_letters + string.digits, k=length))
 
 
-def load_json(file_path):
-    if not os.path.isfile(file_path):
-        raise FileNotFoundError(f"{file_path} not found")
-    with open(file_path, 'r') as file:
-        return json.load(file)
+def read_json_file(file_path):
+    with open(file_path, 'r') as f:
+        return json.load(f)
 
 
-def save_json(data, file_path):
-    with open(file_path, 'w') as file:
-        json.dump(data, file, indent=4)
+def write_json_file(file_path, data):
+    with open(file_path, 'w') as f:
+        json.dump(data, f, indent=4)
 
 
-def list_directory_files(directory):
-    return [f for f in os.listdir(directory) if os.path.isfile(os.path.join(directory, f))]
+def safe_divide(numerator, denominator):
+    try:
+        return numerator / denominator
+    except ZeroDivisionError:
+        return float('inf')  # Return infinity if denominator is zero
 
 
-def pretty_print(data):
-    print(json.dumps(data, indent=4, sort_keys=True))
+def is_integer(value):
+    try:
+        int(value)
+        return True
+    except ValueError:
+        return False
 
 
-def merge_dicts(dict1, dict2):
-    return {**dict1, **dict2}
-
-
-def ensure_list(item):
-    return item if isinstance(item, list) else [item]
+def flatten_list(nested_list):
+    return [item for sublist in nested_list for item in sublist]
