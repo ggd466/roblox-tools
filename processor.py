@@ -1,33 +1,38 @@
 import json
 import logging
 
-# Configure logger
-logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
-class ProcessingError(Exception):
-    pass
+class DataProcessor:
+    def __init__(self, data):
+        self.data = data
+        logger.debug('DataProcessor initialized')
 
-def process_data(data):
-    if not isinstance(data, dict):
-        logger.error('Invalid input: expected a dictionary')
-        raise ProcessingError('Invalid input format')
-    
-    try:
-        # Simulate data processing
-        result = {key: value * 2 for key, value in data.items() if isinstance(value, (int, float))}
-    except Exception as e:
-        logger.exception('Error processing data')
-        raise ProcessingError('Data processing failed') from e
-    
-    if not result:
-        logger.warning('No numeric values found to process')
-    return result
+    def process(self):
+        logger.info('Processing data')
+        return self._transform_data(self.data)
+
+    def _transform_data(self, data):
+        logger.debug('Transforming data')
+        return [self._process_item(item) for item in data]
+
+    def _process_item(self, item):
+        logger.debug(f'Processing item: {item}')
+        # Simulate a transformation
+        return {key: self._sanitize(value) for key, value in item.items()}
+
+    def _sanitize(self, value):
+        if isinstance(value, str):
+            sanitized_value = value.strip().lower()
+            logger.debug(f'Sanitized value: {sanitized_value}')
+            return sanitized_value
+        return value
+
+    def to_json(self):
+        logger.info('Converting data to JSON')
+        return json.dumps(self.process())
 
 if __name__ == '__main__':
-    data = {'a': 1, 'b': 2, 'c': 'three'}
-    try:
-        processed = process_data(data)
-        print(json.dumps(processed, indent=2))
-    except ProcessingError as e:
-        logger.error(f'Processing failed: {e}')
+    sample_data = [ {'name': ' Roblox  '}, {'name': '  script '} ]
+    processor = DataProcessor(sample_data)
+    print(processor.to_json())
