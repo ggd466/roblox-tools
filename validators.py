@@ -1,33 +1,28 @@
 import re
 
-def validate_username(username):
-    return isinstance(username, str) and 3 <= len(username) <= 20 and re.match('^[a-zA-Z0-9_]+$', username)
+class Validator:
+    @staticmethod
+    def is_valid_username(username):
+        # Alphanumeric check and length
+        return re.match(r'^[A-Za-z0-9]{3,20}$', username) is not None
 
+    @staticmethod
+    def is_valid_password(password):
+        # At least 8 characters, one upper, one number
+        return (len(password) >= 8 and
+                re.search(r'[A-Z]', password) and
+                re.search(r'[0-9]', password))
 
-def validate_email(email):
-    return isinstance(email, str) and re.match(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$', email)
+    @staticmethod
+    def is_valid_email(email):
+        # Basic email format check
+        return re.match(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$', email) is not None
 
+    @staticmethod
+    def validate_user_data(username, password, email):
+        return (Validator.is_valid_username(username) and
+                Validator.is_valid_password(password) and
+                Validator.is_valid_email(email))
 
-def validate_password(password):
-    return isinstance(password, str) and len(password) >= 8 and any(c.isdigit() for c in password) and any(c.isalpha() for c in password)
-
-
-def input_validation_loop():
-    while True:
-        username = input('Enter username: ')
-        if not validate_username(username):
-            print('Invalid username. Must be 3-20 characters with letters, numbers, and underscores. Try again.')
-            continue
-
-        email = input('Enter email: ')
-        if not validate_email(email):
-            print('Invalid email format. Try again.')
-            continue
-
-        password = input('Enter password: ')
-        if not validate_password(password):
-            print('Invalid password. Must be at least 8 characters, include letters and numbers. Try again.')
-            continue
-
-        print('All inputs are valid!')
-        break
+if __name__ == '__main__':
+    print(Validator.validate_user_data('User123', 'Password1', 'user@example.com'))
