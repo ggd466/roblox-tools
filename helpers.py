@@ -1,35 +1,32 @@
-import json
+import time
 import random
-import string
+from typing import Callable, TypeVar, Any
 
-def generate_random_string(length=10):
-    return ''.join(random.choices(string.ascii_letters + string.digits, k=length))
+T = TypeVar('T')
 
+def retry_operation(func: Callable[..., T], retries: int = 5, delay: float = 2.0) -> T:
+    for attempt in range(retries):
+        try:
+            return func()
+        except Exception as e:
+            print(f'Attempt {attempt + 1} failed: {e}')
+            if attempt < retries - 1:
+                backoff = delay * (2 ** attempt) + random.uniform(0, 1)
+                print(f'Retrying in {backoff:.2f} seconds...')
+                time.sleep(backoff)
+            else:
+                print('All attempts failed.')
+                raise
 
-def read_json_file(file_path):
-    with open(file_path, 'r') as f:
-        return json.load(f)
+# Example usage:
+if __name__ == '__main__':
+    def network_request():
+        if random.random() < 0.7:
+            raise Exception('Network error')  # Simulating network failure
+        return 'Success'
 
-
-def write_json_file(file_path, data):
-    with open(file_path, 'w') as f:
-        json.dump(data, f, indent=4)
-
-
-def safe_divide(numerator, denominator):
     try:
-        return numerator / denominator
-    except ZeroDivisionError:
-        return float('inf')  # Return infinity if denominator is zero
-
-
-def is_integer(value):
-    try:
-        int(value)
-        return True
-    except ValueError:
-        return False
-
-
-def flatten_list(nested_list):
-    return [item for sublist in nested_list for item in sublist]
+        result = retry_operation(network_request)
+        print(result)
+    except Exception:
+        print('Operation failed after retries.')
