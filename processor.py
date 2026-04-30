@@ -1,38 +1,15 @@
-import json
-import logging
+import time
 
-logger = logging.getLogger(__name__)
-
-class DataProcessor:
-    def __init__(self, data):
-        self.data = data
-        logger.debug('DataProcessor initialized')
-
-    def process(self):
-        logger.info('Processing data')
-        return self._transform_data(self.data)
-
-    def _transform_data(self, data):
-        logger.debug('Transforming data')
-        return [self._process_item(item) for item in data]
-
-    def _process_item(self, item):
-        logger.debug(f'Processing item: {item}')
-        # Simulate a transformation
-        return {key: self._sanitize(value) for key, value in item.items()}
-
-    def _sanitize(self, value):
-        if isinstance(value, str):
-            sanitized_value = value.strip().lower()
-            logger.debug(f'Sanitized value: {sanitized_value}')
-            return sanitized_value
-        return value
-
-    def to_json(self):
-        logger.info('Converting data to JSON')
-        return json.dumps(self.process())
+def optimized_process(data):
+    start_time = time.time()
+    processed_data = []
+    for item in data:
+        processed_data.append(item ** 2)  # Example processing step
+    end_time = time.time()
+    print(f"Processing took {end_time - start_time:.2f} seconds")
+    return processed_data
 
 if __name__ == '__main__':
-    sample_data = [ {'name': ' Roblox  '}, {'name': '  script '} ]
-    processor = DataProcessor(sample_data)
-    print(processor.to_json())
+    sample_data = range(1, 100000)
+    result = optimized_process(sample_data)
+    print(f"Processed {len(result)} items.")
